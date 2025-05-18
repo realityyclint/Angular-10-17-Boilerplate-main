@@ -11,9 +11,9 @@ export class AddEditComponent implements OnInit {
     id: number | null = null;
     request: any = {
         type: 'Equipment',
-        employeeId: '',
+        employeeId: '',  // Use this for employee binding
         items: [],
-        status: 'Pending'
+        status: 'Pending',
     };
     employees: any[] = [];
     errorMessage: string = '';
@@ -28,18 +28,30 @@ export class AddEditComponent implements OnInit {
     ngOnInit(): void {
         this.id = this.route.snapshot.params['id'] ? +this.route.snapshot.params['id'] : null;
 
-        this.employeeService.getAll().subscribe((employees) => (this.employees = employees));
+        // Load employees list first
+        this.employeeService.getAll().subscribe((employees) => {
+            this.employees = employees;
 
-        if (this.id) {
-            this.requestService.getById(this.id).subscribe({
-                next: (data) => {
-                    this.request = data;
-                },
-                error: (err) => (this.errorMessage = err.message),
-            });
-        } else {
-            this.addItem(); // Start with at least one item field
-        }
+            if (this.id) {
+                this.loadRequest();
+            } else {
+                this.addItem();
+            }
+        });
+    }
+
+    loadRequest(): void {
+        this.requestService.getById(this.id!).subscribe({
+            next: (data) => {
+                this.request = data;
+
+                // Make sure items array exists so template doesn't break
+                if (!this.request.items || this.request.items.length === 0) {
+                    this.addItem();
+                }
+            },
+            error: (err) => (this.errorMessage = err.message),
+        });
     }
 
     addItem(): void {
@@ -53,7 +65,7 @@ export class AddEditComponent implements OnInit {
     save(): void {
         const payload = { ...this.request };
 
-        // Prevent sending employeeId if creating a new request
+        // If creating a new request, prevent sending employeeId if you want to handle it differently
         if (!this.id) {
             delete payload.employeeId;
         }
@@ -67,7 +79,6 @@ export class AddEditComponent implements OnInit {
             error: (err) => (this.errorMessage = err.message),
         });
     }
-
 
     cancel(): void {
         this.router.navigate(['/requests']);
