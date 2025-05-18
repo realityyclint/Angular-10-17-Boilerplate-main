@@ -13,6 +13,7 @@ export class ListComponent implements OnInit {
     isLoading = false;
     account: any; // Define the account property
     viewMode: 'table' | 'card';
+    zooming = false;
 
     constructor(
         private departmentService: DepartmentService,
@@ -31,6 +32,29 @@ export class ListComponent implements OnInit {
     setViewMode(mode: 'table' | 'card') {
         this.viewMode = mode;
         localStorage.setItem('departmentViewMode', mode);
+    }
+
+    zoomAndNavigate(button: HTMLElement) {
+        this.zooming = true;
+
+        // Make sure button stays in fixed position
+        const rect = button.getBoundingClientRect();
+        button.style.position = 'fixed';
+        button.style.top = `${rect.top + rect.height / 2}px`;
+        button.style.left = `${rect.left + rect.width / 2}px`;
+        button.style.transform = 'translate(-50%, -50%) scale(1)';
+
+        // Wait for animation to complete (0.5s in CSS)
+        setTimeout(() => {
+            // Reset styles if needed (optional)
+            button.style.position = '';
+            button.style.top = '';
+            button.style.left = '';
+            button.style.transform = '';
+
+            // Navigate or show the add department page here
+            this.router.navigate(['/departments/add']); // Or whatever your route is
+        }, 500);
     }
 
     loadDepartments(): void {
