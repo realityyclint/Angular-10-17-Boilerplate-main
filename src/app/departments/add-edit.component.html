@@ -1,6 +1,7 @@
 <div *ngIf="showModal" class="modal-backdrop-wrapper">
   <!-- Backdrop -->
-  <div class="custom-backdrop"></div>
+  <div class="custom-backdrop" (click)="cancel()"></div>
+
 
   <!-- Modal -->
   <div class="modal fade show d-block" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="departmentModalLabel">
