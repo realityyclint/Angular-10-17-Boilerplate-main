@@ -4,7 +4,14 @@
   </div>
   <div>
     <div class="table-responsive shadow rounded-4">
-      <ng-container *ngIf="employees && employees.length; else noEmployees">
+
+      <div *ngIf="isLoading" class="text-center my-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+      
+      <ng-container *ngIf="!isLoading && employees && employees.length; else noEmployees">
         <table class="table table-hover align-middle mb-0 bg-white rounded-4 overflow-hidden animate__animated animate__fadeIn">
           <thead class="table-dark text-center">
             <tr>

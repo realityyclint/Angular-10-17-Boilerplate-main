@@ -4,7 +4,16 @@
   </div>
   <div>
     <div class="table-responsive shadow rounded-4">
-      <ng-container *ngIf="departments && departments.length; else noDepartments">
+
+      <!-- Show spinner while loading -->
+      <div *ngIf="isLoading" class="text-center my-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <!-- Show table if not loading and departments exist -->
+      <ng-container *ngIf="!isLoading && departments && departments.length; else noDepartments">
         <table class="table table-hover align-middle mb-0 bg-white rounded-4 overflow-hidden animate__animated animate__fadeIn">
           <thead class="table-dark">
             <tr class="text-center">
@@ -31,12 +40,14 @@
           </tbody>
         </table>
       </ng-container>
+
       <ng-template #noDepartments>
         <div class="text-center text-muted py-4">
           <i class="bi bi-info-circle me-2"></i>No departments found.
         </div>
       </ng-template>
     </div>
+
     <div class="mt-4 text-end">
       <button *ngIf="account.role === 'Admin'" class="btn btn-success" (click)="add()">
         <i class="bi bi-plus-circle me-2"></i> Add Department

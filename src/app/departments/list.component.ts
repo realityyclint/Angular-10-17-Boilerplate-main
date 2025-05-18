@@ -11,6 +11,7 @@ export class ListComponent implements OnInit {
     departments: any[] = [];
     errorMessage: string = '';
     account: any; // Define the account property
+    isLoading = false;
 
     constructor(
         private departmentService: DepartmentService,
@@ -25,11 +26,17 @@ export class ListComponent implements OnInit {
     }
 
     loadDepartments(): void {
+        this.isLoading = true; // start loading
         this.departmentService.getAll().subscribe({
-            next: (data) => (this.departments = data),
-            error: (err) => (this.errorMessage = err.message),
+            next: (data) => {
+                this.departments = data;
+                this.isLoading = false; // stop loading on success
+            },
+            error: (err) => {
+                this.errorMessage = err.message;
+                this.isLoading = false; // stop loading on error too
+            }
         });
-        console.log(this.departments); // Check how many items Angular actually sees
     }
 
     add(): void {

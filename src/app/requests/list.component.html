@@ -5,7 +5,14 @@
 
   <div>
     <div class="table-responsive shadow rounded-4">
-      <ng-container *ngIf="requests && requests.length; else noRequests">
+
+      <div *ngIf="isLoading" class="text-center my-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <ng-container *ngIf="!isLoading && requests && requests.length; else noRequests">
         <table class="table table-hover align-middle mb-0 bg-white rounded-4 overflow-hidden animate__animated animate__fadeIn">
           <thead class="table-dark">
             <tr class="text-center">

@@ -10,6 +10,7 @@ import { AccountService } from '../_services/account.service';
 export class ListComponent implements OnInit {
     requests: any[] = [];
     errorMessage: string = '';
+    isLoading: boolean = false;
 
     constructor(
         private requestService: RequestService,
@@ -23,9 +24,17 @@ export class ListComponent implements OnInit {
     }
 
     loadRequests(): void {
+        this.isLoading = true; // start loading
         this.requestService.getAll().subscribe({
-            next: (data) => (this.requests = data),
-            error: (err) => (this.errorMessage = err.message),
+            next: (data) => {
+                this.requests = data;
+                this.isLoading = false; // done loading
+                this.errorMessage = '';
+            },
+            error: (err) => {
+                this.errorMessage = err.message;
+                this.isLoading = false; // done loading even on error
+            }
         });
     }
 

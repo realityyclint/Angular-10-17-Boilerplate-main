@@ -14,6 +14,7 @@ export class ListComponent implements OnInit {
 
     showModal: boolean = false;
     selectedEmployee: any = null;
+    isLoading: boolean = false;
 
     constructor(
         private employeeService: EmployeeService,
@@ -28,7 +29,17 @@ export class ListComponent implements OnInit {
     }
 
     loadEmployees(): void {
-        this.employeeService.getAll().subscribe(data => this.employees = data);
+        this.isLoading = true; // start loading
+        this.employeeService.getAll().subscribe({
+            next: (data) => {
+                this.employees = data;
+                this.isLoading = false; // finished loading
+            },
+            error: (err) => {
+                this.isLoading = false; // finished loading even on error
+                // optionally handle error here
+            }
+        });
     }
 
     account() {
