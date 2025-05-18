@@ -47,10 +47,17 @@ export class AddEditComponent implements OnInit {
 
     loadRequest(): void {
         this.requestService.getById(this.id!).subscribe({
-            next: (data) => {
+            next: (data: any) => { // 👈 Tell TS to treat data as 'any'
                 this.request = {
-                    ...data,
-                    items: data.items && data.items.length > 0 ? data.items : [{ name: '', quantity: 1 }],
+                    type: data.type || 'Equipment',
+                    employeeId: data.employeeId || '',
+                    status: data.status || 'Pending',
+                    items: Array.isArray(data.RequestItems) && data.RequestItems.length > 0
+                        ? data.RequestItems.map((item: any) => ({
+                            name: item.name || '',
+                            quantity: item.quantity || 1
+                        }))
+                        : [{ name: '', quantity: 1 }],
                 };
             },
             error: (err) => {
