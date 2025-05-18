@@ -10,6 +10,7 @@ import { AccountService } from '../_services/account.service';
 export class WorkflowListComponent implements OnInit {
     employeeId: number = 0;
     workflows: any[] = [];
+    isLoading = false;
 
     constructor(
         private workflowService: WorkflowService,
@@ -24,12 +25,15 @@ export class WorkflowListComponent implements OnInit {
     }
 
     loadWorkflows(): void {
+        this.isLoading = true;
         this.workflowService.getByEmployeeId(this.employeeId).subscribe({
             next: (data) => {
                 this.workflows = data;
+                this.isLoading = false;
             },
             error: (error) => {
                 console.error('Error loading workflows', error);
+                this.isLoading = false;
             }
         });
     }

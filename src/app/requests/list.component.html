@@ -17,7 +17,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let request of requests">
+            <tr *ngFor="let request of requests" class="text-center">
               <td class="fw-semibold">{{ request.type }}</td>
               <td>{{ request.Employee?.Account?.firstName }} {{ request.Employee?.Account?.lastName }}</td>
               <td class="text-start">

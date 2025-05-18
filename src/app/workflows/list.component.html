@@ -1,23 +1,38 @@
-<div class="card">
-  <div class="card-header">Workflows for Employee {{employeeId}}</div>
-  <div class="card-body">
-    <div class="table-responsive">
-      <table class="table table-striped">
-        <thead>
+<div class="card shadow rounded-4 border-0">
+  <div class="card-header bg-primary text-white fw-semibold fs-5 rounded-top-4">
+    Workflows for Employee {{ employeeId }}
+  </div>
+
+  <div class="card-body p-4 bg-light">
+    <div *ngIf="isLoading" class="text-center my-3">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <div *ngIf="!isLoading" class="table-responsive">
+      <table class="table table-striped align-middle">
+        <thead class="table-primary rounded">
           <tr>
-            <th>Type</th>
-            <th>Details</th>
-            <th>Status</th>
-            <th *ngIf="account()?.role === 'Admin'">Actions</th>
+            <th class="fw-semibold">Type</th>
+            <th class="fw-semibold">Details</th>
+            <th class="fw-semibold">Status</th>
+            <th *ngIf="account()?.role === 'Admin'" class="fw-semibold">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let workflow of workflows">
-            <td>{{workflow.type}}</td>
-            <td>{{workflow.details | json}}</td>
-            <td>{{workflow.status}}</td>
+            <td>{{ workflow.type }}</td>
+            <td>
+              <pre class="mb-0">{{ workflow.details | json }}</pre>
+            </td>
+            <td>{{ workflow.status }}</td>
             <td *ngIf="account()?.role === 'Admin'">
-              <select class="form-select d-inline-block w-auto" [(ngModel)]="workflow.status" (change)="updateStatus(workflow)">
+              <select
+                class="form-select rounded-pill shadow-sm w-auto"
+                [(ngModel)]="workflow.status"
+                (change)="updateStatus(workflow)"
+              >
                 <option>Pending</option>
                 <option>Approved</option>
                 <option>Rejected</option>

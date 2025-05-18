@@ -10,7 +10,12 @@ export class TransferComponent {
     @Input() departments: any[] = [];
 
     @Output() cancelEvent = new EventEmitter<void>();
-    @Output() transferEvent = new EventEmitter<{ accountId: number, departmentId: number }>();
+    @Output() transferEvent = new EventEmitter<{
+        accountId: number;
+        departmentId: number;
+        type: string;
+        status: string;
+    }>();
 
     departmentId: number = 0;
 
@@ -22,7 +27,13 @@ export class TransferComponent {
 
     transfer(): void {
         if (this.selectedEmployee?.accountId && this.departmentId) {
-            this.transferEvent.emit({ accountId: this.selectedEmployee.accountId, departmentId: this.departmentId });
+            this.transferEvent.emit({
+                accountId: this.selectedEmployee.accountId,
+                departmentId: this.departmentId,
+                type: 'Transfer',
+                status: 'Pending' // you can change this dynamically if needed later
+            });
+
         }
     }
 
