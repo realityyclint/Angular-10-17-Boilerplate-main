@@ -12,6 +12,7 @@ export class ListComponent implements OnInit {
     departments: any[] = [];
     isLoading = false;
     account: any; // Define the account property
+    viewMode: 'table' | 'card' = 'table';
 
     constructor(
         private departmentService: DepartmentService,
@@ -23,6 +24,10 @@ export class ListComponent implements OnInit {
     ngOnInit(): void {
         this.account = this.accountService.accountValue;
         this.loadDepartments();
+    }
+
+    setViewMode(mode: 'table' | 'card') {
+        this.viewMode = mode;
     }
 
     loadDepartments(): void {
