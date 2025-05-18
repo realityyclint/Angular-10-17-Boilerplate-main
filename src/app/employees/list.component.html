@@ -47,7 +47,7 @@
                 <td>{{ employee.hireDate | date:'mediumDate' }}</td>
                 <td>
                   <span
-                    class="badge rounded-pill px-3 py-2 fs-6"
+                    class="badge"
                     [ngClass]="{
                       'bg-success': employee.status === 'Active',
                       'bg-danger': employee.status !== 'Active'
