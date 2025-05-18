@@ -1,17 +1,20 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { EmployeeService } from '../_services/employee.service';
 import { DepartmentService } from '../_services/department.service';
 import { UserService } from '../_services/user.service';
 import { AccountService } from '../_services/account.service';
-import { AlertService } from '../_services/alert.service'; // ✅ Import AlertService
+import { AlertService } from '../_services/alert.service';
 
 @Component({
-    selector: 'app-employee-add-edit',
+    selector: 'app-employee-modal',
     templateUrl: './add-edit.component.html',
 })
-export class AddEditComponent implements OnInit {
-    id: number | null = null;
+export class AddEditComponent implements OnChanges {
+    @Input() showModal: boolean = false;
+    @Input() selectedEmployee: any = null;
+    @Output() cancelEvent = new EventEmitter<void>();
+    @Output() saveEvent = new EventEmitter<void>();
+
     employee: any = {
         employeeId: '',
         accountId: '',
@@ -21,6 +24,8 @@ export class AddEditComponent implements OnInit {
         hireDate: '',
         status: 'Active',
     };
+    isNew: boolean = true;
+
     users: any[] = [];
     departments: any[] = [];
     accounts: any[] = [];
@@ -31,66 +36,66 @@ export class AddEditComponent implements OnInit {
         private userService: UserService,
         private departmentService: DepartmentService,
         private accountService: AccountService,
-        public alertService: AlertService, // ✅ Inject AlertService
-        private route: ActivatedRoute,
-        private router: Router
+        public alertService: AlertService
     ) { }
 
-    ngOnInit(): void {
-        this.id = this.route.snapshot.params['id'] ? +this.route.snapshot.params['id'] : null;
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['selectedEmployee']) {
+            this.isNew = !this.selectedEmployee;
+            this.employee = this.selectedEmployee
+                ? { ...this.selectedEmployee, hireDate: this.formatDate(this.selectedEmployee.hireDate) }
+                : {
+                    employeeId: '',
+                    accountId: '',
+                    userId: '',
+                    position: '',
+                    departmentId: '',
+                    hireDate: '',
+                    status: 'Active',
+                };
 
+            this.loadDropdowns();
+        }
+    }
+
+    private loadDropdowns(): void {
         this.userService.getAll().subscribe(users => this.users = users);
         this.departmentService.getAll().subscribe(depts => this.departments = depts);
         this.accountService.getAll().subscribe(accs => {
             this.employeeService.getAll().subscribe(emps => {
                 const usedAccountIds = emps.map(e => e.accountId);
-
-                // If adding (not editing), exclude already used accountIds
-                if (!this.id) {
-                    this.accounts = accs.filter(acc => !usedAccountIds.includes(acc.id));
-                } else {
-                    // If editing, include the current accountId too
-                    this.accounts = accs;
-                }
+                this.accounts = this.isNew
+                    ? accs.filter(acc => !usedAccountIds.includes(acc.id))
+                    : accs;
             });
         });
-
-        if (this.id) {
-            this.employeeService.getById(this.id).subscribe({
-                next: (data) => {
-                    if (data.hireDate) {
-                        const hireDate = new Date(data.hireDate);
-                        data.hireDate = hireDate.toISOString().split('T')[0];
-                    }
-                    this.employee = data;
-                },
-                error: (err) => this.alertService.error(err.message) // ✅ Show error alert
-            });
-        }
     }
 
     save(): void {
-        this.alertService.clear(); // ✅ Clear alerts before save
+        this.alertService.clear();
         this.loading = true;
 
-        const payload = { ...this.employee };
-        if (!this.id) delete payload.hireDate;
-
-        const request = this.id
-            ? this.employeeService.update(this.id, this.employee)
-            : this.employeeService.create(this.employee);
+        const request = this.isNew
+            ? this.employeeService.create(this.employee)
+            : this.employeeService.update(this.employee.id, this.employee);
 
         request.subscribe({
             next: () => {
-                const msg = this.id ? 'Employee updated successfully' : 'Employee created successfully';
-                this.alertService.success(msg, { keepAfterRouteChange: true }); // ✅ Show success alert
-                this.router.navigate(['../'], { relativeTo: this.route });
+                const msg = this.isNew ? 'Employee created successfully' : 'Employee updated successfully';
+                this.alertService.success(msg);
+                this.saveEvent.emit();
+                this.loading = false;
             },
             error: (err) => {
-                this.alertService.error(err.message); // ✅ Show error alert
+                this.alertService.error(err.message);
                 this.loading = false;
             }
         });
+    }
+
+    cancel(): void {
+        this.alertService.clear();
+        this.cancelEvent.emit();
     }
 
     getAccountEmail(accountId: number): string {
@@ -98,8 +103,7 @@ export class AddEditComponent implements OnInit {
         return account ? account.email : '';
     }
 
-
-    cancel(): void {
-        this.router.navigate(['/employees']);
+    private formatDate(date: string): string {
+        return date ? new Date(date).toISOString().split('T')[0] : '';
     }
 }

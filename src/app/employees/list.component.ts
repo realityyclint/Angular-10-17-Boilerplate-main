@@ -59,6 +59,17 @@ export class ListComponent implements OnInit {
         });
     }
 
+    onCancel(): void {
+        this.showModal = false;          // Close the modal
+        this.selectedEmployee = null;    // Clear any selected employee
+    }
+
+    onSave(): void {
+        this.showModal = false;          // Close the modal
+        this.selectedEmployee = null;    // Clear selection
+        this.loadEmployees();            // Refresh employee list after save
+    }
+
     account() {
         return this.accountService.accountValue;
     }
