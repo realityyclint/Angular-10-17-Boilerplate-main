@@ -6,66 +6,74 @@
   <div>
     <div class="table-responsive shadow rounded-4">
 
-      <div *ngIf="isLoading" class="text-center my-4">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
+      <!-- Loader -->
+      <ng-container *ngIf="isLoading; else dataSection">
+        <div class="text-center my-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
         </div>
-      </div>
-
-      <ng-container *ngIf="!isLoading && requests && requests?.length > 0; else noRequests">
-        <table class="table table-hover align-middle mb-0 bg-white rounded-4 overflow-hidden animate__animated animate__fadeIn">
-          <thead class="table-dark">
-            <tr class="text-center">
-              <th>Type</th>
-              <th>Employee</th>
-              <th>Items</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let request of requests" class="text-center">
-              <td class="fw-semibold">{{ request.type }}</td>
-              <td>{{ request.Employee?.Account?.firstName }} {{ request.Employee?.Account?.lastName }}</td>
-              <td class="text-start">
-                <ul class="list-unstyled mb-0">
-                  <li *ngFor="let item of request.RequestItems">
-                    {{ item.name }} <span class="text-muted">(x{{ item.quantity }})</span>
-                  </li>
-                </ul>
-              </td>
-              <td>
-                <span class="badge"
-                      [ngClass]="{
-                        'bg-success': request.status === 'Approved',
-                        'bg-warning text-dark': request.status === 'Pending',
-                        'bg-danger': request.status === 'Rejected'
-                      }">
-                  {{ request.status }}
-                </span>
-              </td>
-              <td class="text-nowrap">
-                <button *ngIf="account()?.role === 'Admin'"
-                        class="btn btn-sm btn-outline-primary me-1 shadow-sm"
-                        (click)="edit(request.id)">
-                   Edit
-                </button>
-                <button *ngIf="account()?.role === 'Admin'"
-                        class="btn btn-sm btn-outline-danger shadow-sm"
-                        (click)="delete(request.id)">
-                   Delete
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
       </ng-container>
 
+      <!-- Data or Empty State -->
+      <ng-template #dataSection>
+        <ng-container *ngIf="requests?.length > 0; else noRequests">
+          <table class="table table-hover align-middle mb-0 bg-white rounded-4 overflow-hidden animate__animated animate__fadeIn">
+            <thead class="table-dark">
+              <tr class="text-center">
+                <th>Type</th>
+                <th>Employee</th>
+                <th>Items</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let request of requests" class="text-center">
+                <td class="fw-semibold">{{ request.type }}</td>
+                <td>{{ request.Employee?.Account?.firstName }} {{ request.Employee?.Account?.lastName }}</td>
+                <td class="text-start">
+                  <ul class="list-unstyled mb-0">
+                    <li *ngFor="let item of request.RequestItems">
+                      {{ item.name }} <span class="text-muted">(x{{ item.quantity }})</span>
+                    </li>
+                  </ul>
+                </td>
+                <td>
+                  <span class="badge"
+                        [ngClass]="{
+                          'bg-success': request.status === 'Approved',
+                          'bg-warning text-dark': request.status === 'Pending',
+                          'bg-danger': request.status === 'Rejected'
+                        }">
+                    {{ request.status }}
+                  </span>
+                </td>
+                <td class="text-nowrap">
+                  <button *ngIf="account()?.role === 'Admin'"
+                          class="btn btn-sm btn-outline-primary me-1 shadow-sm"
+                          (click)="edit(request.id)">
+                     Edit
+                  </button>
+                  <button *ngIf="account()?.role === 'Admin'"
+                          class="btn btn-sm btn-outline-danger shadow-sm"
+                          (click)="delete(request.id)">
+                     Delete
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </ng-container>
+      </ng-template>
+
+      <!-- Empty State -->
       <ng-template #noRequests>
         <div class="text-center text-muted py-4">
           <i class="bi bi-info-circle me-2"></i>No requests found.
         </div>
       </ng-template>
+
     </div>
 
     <div class="d-flex justify-content-end mt-3">

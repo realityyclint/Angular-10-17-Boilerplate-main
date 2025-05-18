@@ -1,72 +1,84 @@
 <div class="container my-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="fw-bold text-primary"><i class="bi bi-people-fill me-2"></i>Employees</h2>
+    <h2 class="fw-bold text-primary">
+      <i class="bi bi-people-fill me-2"></i>Employees
+    </h2>
   </div>
+
   <div>
     <div class="table-responsive shadow rounded-4">
 
-      <div *ngIf="isLoading" class="text-center my-4">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
+      <!-- Loader -->
+      <ng-container *ngIf="isLoading; else dataSection">
+        <div class="text-center my-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
         </div>
-      </div>
-
-      <ng-container *ngIf="!isLoading && employees && employees?.length > 0; else noEmployees">
-        <table class="table table-hover align-middle mb-0 bg-white rounded-4 overflow-hidden animate__animated animate__fadeIn">
-          <thead class="table-dark text-center">
-            <tr>
-              <th>Employee ID</th>
-              <th>User</th>
-              <th>Position</th>
-              <th>Department</th>
-              <th>Hire Date</th>
-              <th>Status</th>
-              <th class="text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="text-center">
-            <tr *ngFor="let employee of employees">
-              <td>{{ employee.accountId }}</td>
-              <td>{{ employee.Account?.email }}</td>
-              <td>{{ employee.position }}</td>
-              <td>{{ employee.Department?.name }}</td>
-              <td>{{ employee.hireDate | date:'mediumDate' }}</td>
-              <td>
-                <span
-                  class="badge rounded-pill px-3 py-2 fs-6"
-                  [ngClass]="{
-                    'bg-success': employee.status === 'Active',
-                    'bg-danger': employee.status !== 'Active'
-                  }">
-                  {{ employee.status }}
-                </span>
-              </td>
-              <td class="text-center">
-                <button class="btn btn-outline-info btn-sm fw-semibold me-2" (click)="viewRequests(employee.accountId)">
-                   Requests
-                </button>
-                <button class="btn btn-outline-info btn-sm fw-semibold me-2" (click)="viewWorkflows(employee.id)">
-                   Workflows
-                </button>
-                <button *ngIf="account()?.role === 'Admin'" class="btn btn-outline-warning btn-sm fw-semibold me-2" (click)="transfer(employee)">
-                   Transfer
-                </button>
-                <button class="btn btn-outline-primary btn-sm fw-semibold me-2" (click)="edit(employee.id)">
-                   Edit
-                </button>
-                <button *ngIf="account()?.role === 'Admin'" class="btn btn-outline-danger btn-sm fw-semibold" (click)="delete(employee.id)">
-                   Delete
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
       </ng-container>
+
+      <!-- Data or Empty State -->
+      <ng-template #dataSection>
+        <ng-container *ngIf="employees?.length > 0; else noEmployees">
+          <table class="table table-hover align-middle mb-0 bg-white rounded-4 overflow-hidden animate__animated animate__fadeIn">
+            <thead class="table-dark text-center">
+              <tr>
+                <th>Employee ID</th>
+                <th>User</th>
+                <th>Position</th>
+                <th>Department</th>
+                <th>Hire Date</th>
+                <th>Status</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="text-center">
+              <tr *ngFor="let employee of employees">
+                <td>{{ employee.accountId }}</td>
+                <td>{{ employee.Account?.email }}</td>
+                <td>{{ employee.position }}</td>
+                <td>{{ employee.Department?.name }}</td>
+                <td>{{ employee.hireDate | date:'mediumDate' }}</td>
+                <td>
+                  <span
+                    class="badge rounded-pill px-3 py-2 fs-6"
+                    [ngClass]="{
+                      'bg-success': employee.status === 'Active',
+                      'bg-danger': employee.status !== 'Active'
+                    }">
+                    {{ employee.status }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <button class="btn btn-outline-info btn-sm fw-semibold me-2" (click)="viewRequests(employee.accountId)">
+                    Requests
+                  </button>
+                  <button class="btn btn-outline-info btn-sm fw-semibold me-2" (click)="viewWorkflows(employee.id)">
+                    Workflows
+                  </button>
+                  <button *ngIf="account()?.role === 'Admin'" class="btn btn-outline-warning btn-sm fw-semibold me-2" (click)="transfer(employee)">
+                    Transfer
+                  </button>
+                  <button class="btn btn-outline-primary btn-sm fw-semibold me-2" (click)="edit(employee.id)">
+                    Edit
+                  </button>
+                  <button *ngIf="account()?.role === 'Admin'" class="btn btn-outline-danger btn-sm fw-semibold" (click)="delete(employee.id)">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </ng-container>
+      </ng-template>
+
+      <!-- Empty State -->
       <ng-template #noEmployees>
         <div class="text-center text-muted py-4">
           <i class="bi bi-info-circle me-2"></i>No employees found.
         </div>
       </ng-template>
+
     </div>
 
     <div class="mt-4 text-end">
@@ -77,6 +89,7 @@
   </div>
 </div>
 
+<!-- Employee Transfer Modal -->
 <app-employee-transfer
   [showModal]="showModal"
   [selectedEmployee]="selectedEmployee"
