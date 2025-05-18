@@ -41,7 +41,19 @@ export class AddEditComponent implements OnInit {
 
         this.userService.getAll().subscribe(users => this.users = users);
         this.departmentService.getAll().subscribe(depts => this.departments = depts);
-        this.accountService.getAll().subscribe(accs => this.accounts = accs);
+        this.accountService.getAll().subscribe(accs => {
+            this.employeeService.getAll().subscribe(emps => {
+                const usedAccountIds = emps.map(e => e.accountId);
+
+                // If adding (not editing), exclude already used accountIds
+                if (!this.id) {
+                    this.accounts = accs.filter(acc => !usedAccountIds.includes(acc.id));
+                } else {
+                    // If editing, include the current accountId too
+                    this.accounts = accs;
+                }
+            });
+        });
 
         if (this.id) {
             this.employeeService.getById(this.id).subscribe({
