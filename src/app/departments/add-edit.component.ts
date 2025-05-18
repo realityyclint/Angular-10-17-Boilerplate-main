@@ -1,57 +1,66 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { DepartmentService } from '../_services/department.service';
-import { AlertService } from '../_services/alert.service'; // Adjust the path if needed
+import { AlertService } from '../_services/alert.service';
 
 @Component({
-    selector: 'app-department-add-edit',
+    selector: 'app-department-modal',
     templateUrl: './add-edit.component.html',
 })
-export class AddEditComponent implements OnInit {
-    id: number | null = null;
+export class AddEditComponent implements OnChanges {
+    @Input() showModal: boolean = false;
+    @Input() selectedDepartment: any = null;
+    @Output() cancelEvent = new EventEmitter<void>();
+    @Output() saveEvent = new EventEmitter<void>();
+
     department: any = { name: '', description: '' };
+    isNew: boolean = true;
 
     constructor(
         private departmentService: DepartmentService,
-        private route: ActivatedRoute,
-        private router: Router,
         public alertService: AlertService
     ) { }
 
-    ngOnInit(): void {
-        this.id = this.route.snapshot.params['id'] ? +this.route.snapshot.params['id'] : null;
-
-        if (this.id) {
-            this.departmentService.getById(this.id).subscribe({
-                next: (data) => (this.department = data),
-                error: (err) => this.alertService.error('Failed to load department: ' + err.message),
-            });
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['selectedDepartment']) {
+            if (this.selectedDepartment) {
+                this.isNew = false;
+                this.department = { ...this.selectedDepartment };
+            } else {
+                this.isNew = true;
+                this.department = { name: '', description: '' };
+            }
         }
     }
 
     save(): void {
-        this.alertService.clear(); // Clear previous alerts
+        this.alertService.clear();
 
-        if (this.id) {
-            this.departmentService.update(this.id, this.department).subscribe({
-                next: () => {
-                    this.alertService.success('Department updated successfully', { keepAfterRouteChange: true });
-                    this.router.navigate(['/departments']);
-                },
-                error: (err) => this.alertService.error('Update failed: ' + err.message),
-            });
-        } else {
+        if (!this.department.name.trim()) {
+            this.alertService.error('Name is required');
+            return;
+        }
+
+        if (this.isNew) {
             this.departmentService.create(this.department).subscribe({
                 next: () => {
-                    this.alertService.success('Department created successfully', { keepAfterRouteChange: true });
-                    this.router.navigate(['/departments']);
+                    this.alertService.success('Department created successfully');
+                    this.saveEvent.emit();
                 },
                 error: (err) => this.alertService.error('Creation failed: ' + err.message),
+            });
+        } else {
+            this.departmentService.update(this.department.id, this.department).subscribe({
+                next: () => {
+                    this.alertService.success('Department updated successfully');
+                    this.saveEvent.emit();
+                },
+                error: (err) => this.alertService.error('Update failed: ' + err.message),
             });
         }
     }
 
     cancel(): void {
-        this.router.navigate(['/departments']);
+        this.alertService.clear();
+        this.cancelEvent.emit();
     }
 }

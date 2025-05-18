@@ -12,11 +12,7 @@
       </button>
     </div>
     <div class="mt-4 text-end">
-      <button *ngIf="account.role === 'Admin'"
-              #addBtn
-              class="btn btn-success"
-              [class.zoom-animate]="zooming"
-              (click)="zoomAndNavigate(addBtn)">
+      <button *ngIf="account.role === 'Admin'" class="btn btn-success" (click)="add()">
         <i class="bi bi-plus-circle me-2"></i> Add Department
       </button>
     </div>
@@ -29,8 +25,7 @@
     </div>
   </ng-container>
 
-  <div [class.hidden]="zooming">
-    <!-- Loader -->
+  <!-- Loader -->
   <ng-container *ngIf="isLoading; else contentSection">
     <div class="text-center my-4">
       <div class="spinner-border text-primary" role="status">
@@ -107,5 +102,11 @@
       </div>
     </ng-template>
   </ng-template>
-  </div>
 </div>
+
+<app-department-modal
+    [showModal]="showModal"
+    [selectedDepartment]="selectedDepartment"
+    (cancelEvent)="onCancel()"
+    (saveEvent)="onSave($event)">
+  </app-department-modal>

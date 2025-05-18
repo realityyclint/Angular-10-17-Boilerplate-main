@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { DepartmentService } from '../_services/department.service';
 import { AccountService } from '../_services/account.service';
-import { AlertService } from '../_services/alert.service';  // <-- Import AlertService
+import { AlertService } from '../_services/alert.service';
 
 @Component({
     selector: 'app-department-list',
@@ -11,15 +10,17 @@ import { AlertService } from '../_services/alert.service';  // <-- Import AlertS
 export class ListComponent implements OnInit {
     departments: any[] = [];
     isLoading = false;
-    account: any; // Define the account property
-    viewMode: 'table' | 'card';
-    zooming = false;
+    account: any;
+    viewMode: 'table' | 'card' = 'table';
+
+    // Modal control properties
+    showModal = false;
+    selectedDepartment: any = null;
 
     constructor(
         private departmentService: DepartmentService,
         private accountService: AccountService,
-        private router: Router,
-        public alertService: AlertService   // <-- Inject AlertService as public
+        public alertService: AlertService
     ) { }
 
     ngOnInit(): void {
@@ -32,29 +33,6 @@ export class ListComponent implements OnInit {
     setViewMode(mode: 'table' | 'card') {
         this.viewMode = mode;
         localStorage.setItem('departmentViewMode', mode);
-    }
-
-    zoomAndNavigate(button: HTMLElement) {
-        this.zooming = true;
-
-        // Make sure button stays in fixed position
-        const rect = button.getBoundingClientRect();
-        button.style.position = 'fixed';
-        button.style.top = `${rect.top + rect.height / 2}px`;
-        button.style.left = `${rect.left + rect.width / 2}px`;
-        button.style.transform = 'translate(-50%, -50%) scale(1)';
-
-        // Wait for animation to complete (0.5s in CSS)
-        setTimeout(() => {
-            // Reset styles if needed (optional)
-            button.style.position = '';
-            button.style.top = '';
-            button.style.left = '';
-            button.style.transform = '';
-
-            // Navigate or show the add department page here
-            this.router.navigate(['/departments/add']); // Or whatever your route is
-        }, 500);
     }
 
     loadDepartments(): void {
@@ -71,14 +49,26 @@ export class ListComponent implements OnInit {
         });
     }
 
+    // Open the modal to add a new department
     add(): void {
-        this.router.navigate(['/departments/add']);
+        this.selectedDepartment = { name: '', description: '', employeeCount: 0 };
+        this.showModal = true;
     }
 
+    // Open the modal to edit an existing department
     edit(id: number): void {
-        this.router.navigate(['/departments/edit', id]);
+        this.departmentService.getById(id).subscribe({
+            next: (dept) => {
+                this.selectedDepartment = { ...dept }; // clone to avoid direct mutation
+                this.showModal = true;
+            },
+            error: (err) => {
+                this.alertService.error('Failed to load department: ' + err.message);
+            }
+        });
     }
 
+    // Confirm and delete a department
     delete(id: number): void {
         if (confirm('Are you sure you want to delete this department?')) {
             this.departmentService.delete(id).subscribe({
@@ -88,6 +78,39 @@ export class ListComponent implements OnInit {
                 },
                 error: (err) => {
                     this.alertService.error('Delete failed: ' + err.message);
+                }
+            });
+        }
+    }
+
+    // Modal cancel event handler
+    onCancel(): void {
+        this.showModal = false;
+        this.selectedDepartment = null;
+    }
+
+    // Modal save event handler (create or update)
+    onSave(department: any): void {
+        if (department.id) {
+            this.departmentService.update(department.id, department).subscribe({
+                next: () => {
+                    this.alertService.success('Department updated successfully');
+                    this.showModal = false;
+                    this.loadDepartments();
+                },
+                error: (err) => {
+                    this.alertService.error('Update failed: ' + err.message);
+                }
+            });
+        } else {
+            this.departmentService.create(department).subscribe({
+                next: () => {
+                    this.alertService.success('Department created successfully');
+                    this.showModal = false;
+                    this.loadDepartments();
+                },
+                error: (err) => {
+                    this.alertService.error('Creation failed: ' + err.message);
                 }
             });
         }
