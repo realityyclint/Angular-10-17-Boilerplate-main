@@ -8,7 +8,7 @@
       </div>
     </ng-container>  
 
-    <div *ngIf="id" class="mb-3">
+    <div *ngIf="false" class="mb-3">
       <label for="employee" class="form-label">Employee:</label>
       <select [(ngModel)]="request.employeeId" name="employee" class="form-select">
         <option *ngFor="let emp of employees" [value]="emp.id">
