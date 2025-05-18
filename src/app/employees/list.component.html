@@ -3,88 +3,13 @@
     <h2 class="fw-bold text-primary">
       <i class="bi bi-people-fill me-2"></i>Employees
     </h2>
-  </div>
-  <ng-container *ngIf="alertService.alert | async as alert">
-    <div class="alert alert-{{ alert.type }} alert-dismissible fade show" role="alert">
-      {{ alert.message }}
-      <button type="button" class="btn-close" aria-label="Close" (click)="alertService.clear()"></button>
-    </div>
-  </ng-container>  
-
-  <div>
-    <div class="table-responsive shadow rounded-4">
-
-      <!-- Loader -->
-      <ng-container *ngIf="isLoading; else dataSection">
-        <div class="text-center my-4">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-        </div>
-      </ng-container>
-
-      <!-- Data or Empty State -->
-      <ng-template #dataSection>
-        <ng-container *ngIf="employees?.length > 0; else noEmployees">
-          <table class="table table-hover align-middle mb-0 bg-white rounded-4 overflow-hidden animate__animated animate__fadeIn">
-            <thead class="table-dark text-center">
-              <tr>
-                <th>Employee ID</th>
-                <th>User</th>
-                <th>Position</th>
-                <th>Department</th>
-                <th>Hire Date</th>
-                <th>Status</th>
-                <th class="text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="text-center">
-              <tr *ngFor="let employee of employees">
-                <td>{{ employee.accountId }}</td>
-                <td>{{ employee.Account?.email }}</td>
-                <td>{{ employee.position }}</td>
-                <td>{{ employee.Department?.name }}</td>
-                <td>{{ employee.hireDate | date:'mediumDate' }}</td>
-                <td>
-                  <span
-                    class="badge"
-                    [ngClass]="{
-                      'bg-success': employee.status === 'Active',
-                      'bg-danger': employee.status !== 'Active'
-                    }">
-                    {{ employee.status }}
-                  </span>
-                </td>
-                <td class="text-center">
-                  <button class="btn btn-outline-info btn-sm fw-semibold me-2" (click)="viewRequests(employee.accountId)">
-                    Requests
-                  </button>
-                  <button class="btn btn-outline-info btn-sm fw-semibold me-2" (click)="viewWorkflows(employee.id)">
-                    Workflows
-                  </button>
-                  <button *ngIf="account()?.role === 'Admin'" class="btn btn-outline-warning btn-sm fw-semibold me-2" (click)="transfer(employee)">
-                    Transfer
-                  </button>
-                  <button *ngIf="account()?.role === 'Admin'" class="btn btn-outline-primary btn-sm fw-semibold me-2" (click)="edit(employee.id)">
-                    Edit
-                  </button>
-                  <button *ngIf="account()?.role === 'Admin'" class="btn btn-outline-danger btn-sm fw-semibold" (click)="delete(employee.id)">
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </ng-container>
-      </ng-template>
-
-      <!-- Empty State -->
-      <ng-template #noEmployees>
-        <div class="text-center text-muted py-4">
-          <i class="bi bi-info-circle me-2"></i>No employees found.
-        </div>
-      </ng-template>
-
+    <div class="btn-group" role="group" aria-label="Display options">
+      <button class="btn btn-outline-secondary" [class.active]="viewMode === 'table'" (click)="viewMode = 'table'">
+        <i class="bi bi-table"></i>
+      </button>
+      <button class="btn btn-outline-secondary" [class.active]="viewMode === 'card'" (click)="viewMode = 'card'">
+        <i class="bi bi-grid-3x3-gap"></i>
+      </button>
     </div>
 
     <div class="mt-4 text-end">
@@ -92,6 +17,113 @@
         <i class="bi bi-plus-circle me-2"></i> Add Employee
       </button>
     </div>
+  </div>
+
+  <ng-container *ngIf="alertService.alert | async as alert">
+    <div class="alert alert-{{ alert.type }} alert-dismissible fade show" role="alert">
+      {{ alert.message }}
+      <button type="button" class="btn-close" aria-label="Close" (click)="alertService.clear()"></button>
+    </div>
+  </ng-container>
+
+  <div class="table-responsive shadow rounded-4">
+    <!-- Loader -->
+    <ng-container *ngIf="isLoading; else dataSection">
+      <div class="text-center my-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Data or Empty State -->
+    <ng-template #dataSection>
+      <ng-container *ngIf="employees?.length > 0; else noEmployees">
+
+        <!-- Table View -->
+        <table *ngIf="viewMode === 'table'" class="table table-hover align-middle mb-0 bg-white rounded-4 overflow-hidden animate__animated animate__fadeIn">
+          <thead class="table-dark text-center">
+            <tr>
+              <th>Employee ID</th>
+              <th>User</th>
+              <th>Position</th>
+              <th>Department</th>
+              <th>Hire Date</th>
+              <th>Status</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="text-center">
+            <tr *ngFor="let employee of employees">
+              <td>{{ employee.accountId }}</td>
+              <td>{{ employee.Account?.email }}</td>
+              <td>{{ employee.position }}</td>
+              <td>{{ employee.Department?.name }}</td>
+              <td>{{ employee.hireDate | date:'mediumDate' }}</td>
+              <td>
+                <span class="badge"
+                  [ngClass]="{ 'bg-success': employee.status === 'Active', 'bg-danger': employee.status !== 'Active' }">
+                  {{ employee.status }}
+                </span>
+              </td>
+              <td class="text-center">
+                <button class="btn btn-outline-info btn-sm fw-semibold me-2" (click)="viewRequests(employee.accountId)">
+                  Requests
+                </button>
+                <button class="btn btn-outline-info btn-sm fw-semibold me-2" (click)="viewWorkflows(employee.id)">
+                  Workflows
+                </button>
+                <button *ngIf="account()?.role === 'Admin'" class="btn btn-outline-warning btn-sm fw-semibold me-2" (click)="transfer(employee)">
+                  Transfer
+                </button>
+                <button *ngIf="account()?.role === 'Admin'" class="btn btn-outline-primary btn-sm fw-semibold me-2" (click)="edit(employee.id)">
+                  Edit
+                </button>
+                <button *ngIf="account()?.role === 'Admin'" class="btn btn-outline-danger btn-sm fw-semibold" (click)="delete(employee.id)">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Card View -->
+        <div *ngIf="viewMode === 'card'" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 animate__animated animate__fadeIn">
+          <div class="col" *ngFor="let employee of employees">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h5 class="card-title fw-bold">{{ employee.Account?.email }}</h5>
+                <p class="card-text mb-1"><strong>Position:</strong> {{ employee.position }}</p>
+                <p class="card-text mb-1"><strong>Department:</strong> {{ employee.Department?.name }}</p>
+                <p class="card-text mb-1"><strong>Hire Date:</strong> {{ employee.hireDate | date:'mediumDate' }}</p>
+                <p class="card-text">
+                  <strong>Status:</strong>
+                  <span class="badge"
+                    [ngClass]="{ 'bg-success': employee.status === 'Active', 'bg-danger': employee.status !== 'Active' }">
+                    {{ employee.status }}
+                  </span>
+                </p>
+              </div>
+              <div class="card-footer bg-white border-top-0 d-flex flex-wrap gap-2">
+                <button class="btn btn-outline-info btn-sm" (click)="viewRequests(employee.accountId)">Requests</button>
+                <button class="btn btn-outline-info btn-sm" (click)="viewWorkflows(employee.id)">Workflows</button>
+                <button *ngIf="account()?.role === 'Admin'" class="btn btn-outline-warning btn-sm" (click)="transfer(employee)">Transfer</button>
+                <button *ngIf="account()?.role === 'Admin'" class="btn btn-outline-primary btn-sm" (click)="edit(employee.id)">Edit</button>
+                <button *ngIf="account()?.role === 'Admin'" class="btn btn-outline-danger btn-sm" (click)="delete(employee.id)">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </ng-container>
+    </ng-template>
+
+    <!-- Empty State -->
+    <ng-template #noEmployees>
+      <div class="text-center text-muted py-4">
+        <i class="bi bi-info-circle me-2"></i>No employees found.
+      </div>
+    </ng-template>
   </div>
 </div>
 

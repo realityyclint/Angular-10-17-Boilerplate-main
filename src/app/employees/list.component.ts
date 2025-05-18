@@ -16,6 +16,7 @@ export class ListComponent implements OnInit {
     showModal: boolean = false;
     selectedEmployee: any = null;
     isLoading: boolean = false;
+    viewMode: 'table' | 'card' = 'table';  // <-- View mode state
 
     constructor(
         private employeeService: EmployeeService,
@@ -26,11 +27,22 @@ export class ListComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
+        // Load saved view mode
+        const savedView = localStorage.getItem('employeeViewMode');
+        if (savedView === 'card' || savedView === 'table') {
+            this.viewMode = savedView;
+        }
+
         this.loadEmployees();
         this.departmentService.getAll().subscribe({
             next: (depts) => this.departments = depts,
             error: (err) => this.alertService.error('Failed to load departments: ' + err.message)
         });
+    }
+
+    setViewMode(mode: 'table' | 'card'): void {
+        this.viewMode = mode;
+        localStorage.setItem('employeeViewMode', mode);  // Save to localStorage
     }
 
     loadEmployees(): void {

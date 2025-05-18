@@ -12,7 +12,7 @@ export class ListComponent implements OnInit {
     departments: any[] = [];
     isLoading = false;
     account: any; // Define the account property
-    viewMode: 'table' | 'card' = 'table';
+    viewMode: 'table' | 'card';
 
     constructor(
         private departmentService: DepartmentService,
@@ -23,11 +23,14 @@ export class ListComponent implements OnInit {
 
     ngOnInit(): void {
         this.account = this.accountService.accountValue;
+        const savedMode = localStorage.getItem('departmentViewMode') as 'table' | 'card';
+        this.viewMode = savedMode ?? 'table';
         this.loadDepartments();
     }
 
     setViewMode(mode: 'table' | 'card') {
         this.viewMode = mode;
+        localStorage.setItem('departmentViewMode', mode);
     }
 
     loadDepartments(): void {
