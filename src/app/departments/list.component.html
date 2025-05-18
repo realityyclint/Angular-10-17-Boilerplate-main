@@ -11,11 +11,6 @@
         <i class="bi bi-grid-3x3-gap"></i>
       </button>
     </div>
-    <div class="mt-4 text-end">
-      <button *ngIf="account.role === 'Admin'" class="btn btn-success" (click)="add()">
-        <i class="bi bi-plus-circle me-2"></i> Add Department
-      </button>
-    </div>
   </div>
 
   <ng-container *ngIf="alertService.alert | async as alert">
@@ -103,10 +98,3 @@
     </ng-template>
   </ng-template>
 </div>
-
-<app-department-modal
-    [showModal]="showModal"
-    [selectedDepartment]="selectedDepartment"
-    (cancelEvent)="onCancel()"
-    (saveEvent)="onSave($event)">
-  </app-department-modal>

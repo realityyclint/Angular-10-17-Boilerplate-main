@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { DepartmentService } from '../_services/department.service';
 import { AccountService } from '../_services/account.service';
-import { AlertService } from '../_services/alert.service';
+import { AlertService } from '../_services/alert.service';  // <-- Import AlertService
 
 @Component({
     selector: 'app-department-list',
@@ -10,17 +11,15 @@ import { AlertService } from '../_services/alert.service';
 export class ListComponent implements OnInit {
     departments: any[] = [];
     isLoading = false;
-    account: any;
-    viewMode: 'table' | 'card' = 'table';
+    account: any; // Define the account property
+    viewMode: 'table' | 'card';
 
-    // Modal control properties
-    showModal = false;
-    selectedDepartment: any = null;
 
     constructor(
         private departmentService: DepartmentService,
         private accountService: AccountService,
-        public alertService: AlertService
+        private router: Router,
+        public alertService: AlertService   // <-- Inject AlertService as public
     ) { }
 
     ngOnInit(): void {
@@ -49,26 +48,14 @@ export class ListComponent implements OnInit {
         });
     }
 
-    // Open the modal to add a new department
     add(): void {
-        this.selectedDepartment = { name: '', description: '', employeeCount: 0 };
-        this.showModal = true;
+        this.router.navigate(['/departments/add']);
     }
 
-    // Open the modal to edit an existing department
     edit(id: number): void {
-        this.departmentService.getById(id).subscribe({
-            next: (dept) => {
-                this.selectedDepartment = { ...dept }; // clone to avoid direct mutation
-                this.showModal = true;
-            },
-            error: (err) => {
-                this.alertService.error('Failed to load department: ' + err.message);
-            }
-        });
+        this.router.navigate(['/departments/edit', id]);
     }
 
-    // Confirm and delete a department
     delete(id: number): void {
         if (confirm('Are you sure you want to delete this department?')) {
             this.departmentService.delete(id).subscribe({
@@ -78,39 +65,6 @@ export class ListComponent implements OnInit {
                 },
                 error: (err) => {
                     this.alertService.error('Delete failed: ' + err.message);
-                }
-            });
-        }
-    }
-
-    // Modal cancel event handler
-    onCancel(): void {
-        this.showModal = false;
-        this.selectedDepartment = null;
-    }
-
-    // Modal save event handler (create or update)
-    onSave(department: any): void {
-        if (department.id) {
-            this.departmentService.update(department.id, department).subscribe({
-                next: () => {
-                    this.alertService.success('Department updated successfully');
-                    this.showModal = false;
-                    this.loadDepartments();
-                },
-                error: (err) => {
-                    this.alertService.error('Update failed: ' + err.message);
-                }
-            });
-        } else {
-            this.departmentService.create(department).subscribe({
-                next: () => {
-                    this.alertService.success('Department created successfully');
-                    this.showModal = false;
-                    this.loadDepartments();
-                },
-                error: (err) => {
-                    this.alertService.error('Creation failed: ' + err.message);
                 }
             });
         }
