@@ -2,6 +2,14 @@
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="fw-bold text-primary"><i class="bi bi-diagram-3 me-2"></i>Departments</h2>
   </div>
+
+  <ng-container *ngIf="alertService.alert | async as alert">
+    <div class="alert alert-{{ alert.type }} alert-dismissible fade show" role="alert">
+      {{ alert.message }}
+      <button type="button" class="btn-close" aria-label="Close" (click)="alertService.clear()"></button>
+    </div>
+  </ng-container>  
+
   <div>
     <div class="table-responsive shadow rounded-4">
 

@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { EmployeeService } from '../_services/employee.service';
 import { AccountService } from '../_services/account.service';
 import { DepartmentService } from '../_services/department.service';
+import { AlertService } from '../_services/alert.service';  // <-- Import AlertService
 
 @Component({
     selector: 'app-employee-list',
@@ -20,24 +21,28 @@ export class ListComponent implements OnInit {
         private employeeService: EmployeeService,
         private departmentService: DepartmentService,
         private router: Router,
-        private accountService: AccountService
+        private accountService: AccountService,
+        public alertService: AlertService  // <-- Inject AlertService
     ) { }
 
     ngOnInit(): void {
         this.loadEmployees();
-        this.departmentService.getAll().subscribe(depts => this.departments = depts);
+        this.departmentService.getAll().subscribe({
+            next: (depts) => this.departments = depts,
+            error: (err) => this.alertService.error('Failed to load departments: ' + err.message)
+        });
     }
 
     loadEmployees(): void {
-        this.isLoading = true; // start loading
+        this.isLoading = true;
         this.employeeService.getAll().subscribe({
             next: (data) => {
                 this.employees = data;
-                this.isLoading = false; // finished loading
+                this.isLoading = false;
             },
             error: (err) => {
-                this.isLoading = false; // finished loading even on error
-                // optionally handle error here
+                this.isLoading = false;
+                this.alertService.error('Failed to load employees: ' + err.message);
             }
         });
     }
@@ -56,7 +61,13 @@ export class ListComponent implements OnInit {
 
     delete(id: number): void {
         if (confirm('Are you sure you want to delete this employee?')) {
-            this.employeeService.delete(id).subscribe(() => this.loadEmployees());
+            this.employeeService.delete(id).subscribe({
+                next: () => {
+                    this.alertService.success('Employee deleted successfully');
+                    this.loadEmployees();
+                },
+                error: (err) => this.alertService.error('Delete failed: ' + err.message)
+            });
         }
     }
 
@@ -71,10 +82,14 @@ export class ListComponent implements OnInit {
     }
 
     onTransferConfirmed(event: { accountId: number, departmentId: number }): void {
-        this.employeeService.transfer(event.accountId, event.departmentId).subscribe(() => {
-            this.showModal = false;
-            this.selectedEmployee = null;
-            this.loadEmployees(); // refresh list after transfer
+        this.employeeService.transfer(event.accountId, event.departmentId).subscribe({
+            next: () => {
+                this.alertService.success('Employee transferred successfully');
+                this.showModal = false;
+                this.selectedEmployee = null;
+                this.loadEmployees();
+            },
+            error: (err) => this.alertService.error('Transfer failed: ' + err.message)
         });
     }
 

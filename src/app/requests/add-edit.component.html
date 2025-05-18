@@ -1,7 +1,12 @@
 <div class="card">
   <div class="card-header">{{id ? 'Edit' : 'Add'}} Request</div>
   <div class="card-body">
-    <div class="alert alert-danger" *ngIf="errorMessage">{{errorMessage}}</div>
+    <ng-container *ngIf="alertService.alert | async as alert">
+      <div class="alert alert-{{ alert.type }} alert-dismissible fade show" role="alert">
+        {{ alert.message }}
+        <button type="button" class="btn-close" aria-label="Close" (click)="alertService.clear()"></button>
+      </div>
+    </ng-container>  
 
     <div *ngIf="id" class="mb-3">
       <label for="employee" class="form-label">Employee:</label>

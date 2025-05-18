@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DepartmentService } from '../_services/department.service';
 import { AccountService } from '../_services/account.service';
+import { AlertService } from '../_services/alert.service';  // <-- Import AlertService
 
 @Component({
     selector: 'app-department-list',
@@ -9,32 +10,31 @@ import { AccountService } from '../_services/account.service';
 })
 export class ListComponent implements OnInit {
     departments: any[] = [];
-    errorMessage: string = '';
-    account: any; // Define the account property
     isLoading = false;
+    account: any; // Define the account property
 
     constructor(
         private departmentService: DepartmentService,
-        private accountService: AccountService, // Inject AccountService
-        private router: Router
+        private accountService: AccountService,
+        private router: Router,
+        public alertService: AlertService   // <-- Inject AlertService as public
     ) { }
 
     ngOnInit(): void {
-        this.account = this.accountService.accountValue; // Ensure this is correctly set
-        console.log(this.account); // Debugging: Check the account object
+        this.account = this.accountService.accountValue;
         this.loadDepartments();
     }
 
     loadDepartments(): void {
-        this.isLoading = true; // start loading
+        this.isLoading = true;
         this.departmentService.getAll().subscribe({
             next: (data) => {
                 this.departments = data;
-                this.isLoading = false; // stop loading on success
+                this.isLoading = false;
             },
             error: (err) => {
-                this.errorMessage = err.message;
-                this.isLoading = false; // stop loading on error too
+                this.isLoading = false;
+                this.alertService.error('Failed to load departments: ' + err.message);
             }
         });
     }
@@ -50,8 +50,13 @@ export class ListComponent implements OnInit {
     delete(id: number): void {
         if (confirm('Are you sure you want to delete this department?')) {
             this.departmentService.delete(id).subscribe({
-                next: () => this.loadDepartments(),
-                error: (err) => (this.errorMessage = err.message),
+                next: () => {
+                    this.alertService.success('Department deleted successfully');
+                    this.loadDepartments();
+                },
+                error: (err) => {
+                    this.alertService.error('Delete failed: ' + err.message);
+                }
             });
         }
     }

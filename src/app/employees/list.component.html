@@ -4,6 +4,12 @@
       <i class="bi bi-people-fill me-2"></i>Employees
     </h2>
   </div>
+  <ng-container *ngIf="alertService.alert | async as alert">
+    <div class="alert alert-{{ alert.type }} alert-dismissible fade show" role="alert">
+      {{ alert.message }}
+      <button type="button" class="btn-close" aria-label="Close" (click)="alertService.clear()"></button>
+    </div>
+  </ng-container>  
 
   <div>
     <div class="table-responsive shadow rounded-4">

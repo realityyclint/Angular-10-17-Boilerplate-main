@@ -3,9 +3,12 @@
     {{ id ? 'Edit' : 'Add' }} Department
   </div>
   <div class="card-body p-4 bg-light">
-    <div *ngIf="errorMessage" class="alert alert-danger">
-      {{ errorMessage }}
-    </div>
+    <ng-container *ngIf="alertService.alert | async as alert">
+      <div class="alert alert-{{ alert.type }} alert-dismissible fade show" role="alert">
+        {{ alert.message }}
+        <button type="button" class="btn-close" aria-label="Close" (click)="alertService.clear()"></button>
+      </div>
+    </ng-container>    
 
     <div class="mb-4">
       <label class="form-label fw-semibold">Name</label>

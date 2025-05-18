@@ -3,7 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EmployeeService } from '../_services/employee.service';
 import { DepartmentService } from '../_services/department.service';
 import { UserService } from '../_services/user.service';
-import { AccountService } from '../_services/account.service'; // ✅ Import AccountService
+import { AccountService } from '../_services/account.service';
+import { AlertService } from '../_services/alert.service'; // ✅ Import AlertService
 
 @Component({
     selector: 'app-employee-add-edit',
@@ -22,14 +23,15 @@ export class AddEditComponent implements OnInit {
     };
     users: any[] = [];
     departments: any[] = [];
-    accounts: any[] = []; // ✅ Add this line
-    errorMessage: string = '';
+    accounts: any[] = [];
+    loading = false;
 
     constructor(
         private employeeService: EmployeeService,
         private userService: UserService,
         private departmentService: DepartmentService,
-        private accountService: AccountService, // ✅ Inject here
+        private accountService: AccountService,
+        public alertService: AlertService, // ✅ Inject AlertService
         private route: ActivatedRoute,
         private router: Router
     ) { }
@@ -39,24 +41,26 @@ export class AddEditComponent implements OnInit {
 
         this.userService.getAll().subscribe(users => this.users = users);
         this.departmentService.getAll().subscribe(depts => this.departments = depts);
-        this.accountService.getAll().subscribe(accs => this.accounts = accs); // ✅ Load accounts
+        this.accountService.getAll().subscribe(accs => this.accounts = accs);
 
         if (this.id) {
             this.employeeService.getById(this.id).subscribe({
                 next: (data) => {
                     if (data.hireDate) {
                         const hireDate = new Date(data.hireDate);
-                        data.hireDate = hireDate.toISOString().split('T')[0]; // format to yyyy-MM-dd
+                        data.hireDate = hireDate.toISOString().split('T')[0];
                     }
                     this.employee = data;
                 },
-
-                error: (err) => (this.errorMessage = err.message),
+                error: (err) => this.alertService.error(err.message) // ✅ Show error alert
             });
         }
     }
 
     save(): void {
+        this.alertService.clear(); // ✅ Clear alerts before save
+        this.loading = true;
+
         const payload = { ...this.employee };
         if (!this.id) delete payload.hireDate;
 
@@ -66,10 +70,14 @@ export class AddEditComponent implements OnInit {
 
         request.subscribe({
             next: () => {
-                // Navigate back to the list using relative path
+                const msg = this.id ? 'Employee updated successfully' : 'Employee created successfully';
+                this.alertService.success(msg, { keepAfterRouteChange: true }); // ✅ Show success alert
                 this.router.navigate(['../'], { relativeTo: this.route });
             },
-            error: (err) => (this.errorMessage = err.message),
+            error: (err) => {
+                this.alertService.error(err.message); // ✅ Show error alert
+                this.loading = false;
+            }
         });
     }
 
