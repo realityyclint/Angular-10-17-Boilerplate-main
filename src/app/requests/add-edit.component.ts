@@ -11,7 +11,7 @@ export class AddEditComponent implements OnInit {
     id: number | null = null;
     request: any = {
         type: 'Equipment',
-        employeeId: '',  // Use this for employee binding
+        employeeId: '', // Still declared to avoid template errors
         items: [],
         status: 'Pending',
     };
@@ -28,14 +28,19 @@ export class AddEditComponent implements OnInit {
     ngOnInit(): void {
         this.id = this.route.snapshot.params['id'] ? +this.route.snapshot.params['id'] : null;
 
-        // Load employees list first
-        this.employeeService.getAll().subscribe((employees) => {
-            this.employees = employees;
+        // Load employee list regardless of Add or Edit
+        this.employeeService.getAll().subscribe({
+            next: (employees) => {
+                this.employees = employees;
 
-            if (this.id) {
-                this.loadRequest();
-            } else {
-                this.addItem();
+                if (this.id) {
+                    this.loadRequest(); // Only load request data if editing
+                } else {
+                    this.addItem(); // Initialize one empty item by default when adding
+                }
+            },
+            error: (err) => {
+                this.errorMessage = 'Failed to load employees: ' + err.message;
             }
         });
     }
@@ -43,14 +48,14 @@ export class AddEditComponent implements OnInit {
     loadRequest(): void {
         this.requestService.getById(this.id!).subscribe({
             next: (data) => {
-                this.request = data;
-
-                // Make sure items array exists so template doesn't break
-                if (!this.request.items || this.request.items.length === 0) {
-                    this.addItem();
-                }
+                this.request = {
+                    ...data,
+                    items: data.items && data.items.length > 0 ? data.items : [{ name: '', quantity: 1 }],
+                };
             },
-            error: (err) => (this.errorMessage = err.message),
+            error: (err) => {
+                this.errorMessage = 'Failed to load request: ' + err.message;
+            },
         });
     }
 
@@ -65,7 +70,7 @@ export class AddEditComponent implements OnInit {
     save(): void {
         const payload = { ...this.request };
 
-        // If creating a new request, prevent sending employeeId if you want to handle it differently
+        // If adding a request, ensure employeeId is not sent
         if (!this.id) {
             delete payload.employeeId;
         }
@@ -76,7 +81,9 @@ export class AddEditComponent implements OnInit {
 
         request$.subscribe({
             next: () => this.router.navigate(['/requests']),
-            error: (err) => (this.errorMessage = err.message),
+            error: (err) => {
+                this.errorMessage = 'Failed to save request: ' + err.message;
+            },
         });
     }
 
