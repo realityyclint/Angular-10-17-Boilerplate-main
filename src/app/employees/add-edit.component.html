@@ -12,9 +12,16 @@
 
     <div class="mb-3">
       <label class="form-label fw-semibold">Account</label>
-      <select class="form-select rounded-3 shadow-sm" [(ngModel)]="employee.accountId">
-        <option *ngFor="let acc of accounts" [value]="acc.id">{{ acc.email }}</option>
-      </select>
+    
+      <ng-container *ngIf="id; else selectAccount">
+        <input type="text" class="form-control rounded-3 shadow-sm" [value]="getAccountEmail(employee.accountId)" disabled>
+      </ng-container>
+    
+      <ng-template #selectAccount>
+        <select class="form-select rounded-3 shadow-sm" [(ngModel)]="employee.accountId">
+          <option *ngFor="let acc of accounts" [value]="acc.id">{{ acc.email }}</option>
+        </select>
+      </ng-template>
     </div>
 
     <div class="mb-3">

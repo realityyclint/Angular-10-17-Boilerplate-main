@@ -81,6 +81,12 @@ export class AddEditComponent implements OnInit {
         });
     }
 
+    getAccountEmail(accountId: number): string {
+        const account = this.accounts.find(acc => acc.id === accountId);
+        return account ? account.email : '';
+    }
+
+
     cancel(): void {
         this.router.navigate(['/employees']);
     }
