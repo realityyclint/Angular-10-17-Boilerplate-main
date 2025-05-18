@@ -10,8 +10,8 @@
           <span class="visually-hidden">Loading...</span>
         </div>
       </div>
-      
-      <ng-container *ngIf="!isLoading && employees && employees.length; else noEmployees">
+
+      <ng-container *ngIf="!isLoading && employees && employees?.length > 0; else noEmployees">
         <table class="table table-hover align-middle mb-0 bg-white rounded-4 overflow-hidden animate__animated animate__fadeIn">
           <thead class="table-dark text-center">
             <tr>

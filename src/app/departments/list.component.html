@@ -13,7 +13,7 @@
       </div>
 
       <!-- Show table if not loading and departments exist -->
-      <ng-container *ngIf="!isLoading && departments && departments.length; else noDepartments">
+      <ng-container *ngIf="!isLoading && departments && departments?.length > 0; else noDepartments">
         <table class="table table-hover align-middle mb-0 bg-white rounded-4 overflow-hidden animate__animated animate__fadeIn">
           <thead class="table-dark">
             <tr class="text-center">
