@@ -5,47 +5,53 @@
   <div>
     <div class="table-responsive shadow rounded-4">
 
-      <!-- Show spinner while loading -->
-      <div *ngIf="isLoading" class="text-center my-4">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
+      <!-- Loader -->
+      <ng-container *ngIf="isLoading; else dataSection">
+        <div class="text-center my-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
         </div>
-      </div>
-
-      <!-- Show table if not loading and departments exist -->
-      <ng-container *ngIf="!isLoading && departments?.length > 0; else noDepartments">
-        <table class="table table-hover align-middle mb-0 bg-white rounded-4 overflow-hidden animate__animated animate__fadeIn">
-          <thead class="table-dark">
-            <tr class="text-center">
-              <th>Name</th>
-              <th>Description</th>
-              <th>Employee Count</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let dept of departments" class="text-center">
-              <td><strong>{{ dept.name }}</strong></td>
-              <td>{{ dept.description }}</td>
-              <td>{{ dept.employeeCount }}</td>
-              <td>
-                <button class="btn btn-outline-primary px-3 py-1 me-2" (click)="edit(dept.id)">
-                  <i class="bi bi-pencil-square me-1"></i> Edit
-                </button>
-                <button *ngIf="account.role === 'Admin'" class="btn btn-outline-danger px-3 py-1" (click)="delete(dept.id)">
-                  <i class="bi bi-trash me-1"></i> Delete
-                </button>
-              </td>              
-            </tr>
-          </tbody>
-        </table>
       </ng-container>
 
+      <!-- Data or Empty State -->
+      <ng-template #dataSection>
+        <ng-container *ngIf="departments?.length > 0; else noDepartments">
+          <table class="table table-hover align-middle mb-0 bg-white rounded-4 overflow-hidden animate__animated animate__fadeIn">
+            <thead class="table-dark">
+              <tr class="text-center">
+                <th>Name</th>
+                <th>Description</th>
+                <th>Employee Count</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let dept of departments" class="text-center">
+                <td><strong>{{ dept.name }}</strong></td>
+                <td>{{ dept.description }}</td>
+                <td>{{ dept.employeeCount }}</td>
+                <td>
+                  <button *ngIf="account.role === 'Admin'" class="btn btn-outline-primary px-3 py-1 me-2" (click)="edit(dept.id)">
+                    <i class="bi bi-pencil-square me-1"></i> Edit
+                  </button>
+                  <button *ngIf="account.role === 'Admin'" class="btn btn-outline-danger px-3 py-1" (click)="delete(dept.id)">
+                    <i class="bi bi-trash me-1"></i> Delete
+                  </button>
+                </td>              
+              </tr>
+            </tbody>
+          </table>
+        </ng-container>
+      </ng-template>
+
+      <!-- Empty State -->
       <ng-template #noDepartments>
         <div class="text-center text-muted py-4">
           <i class="bi bi-info-circle me-2"></i>No departments found.
         </div>
       </ng-template>
+
     </div>
 
     <div class="mt-4 text-end">

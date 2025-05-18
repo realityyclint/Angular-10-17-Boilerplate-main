@@ -59,7 +59,7 @@
                   <button *ngIf="account()?.role === 'Admin'" class="btn btn-outline-warning btn-sm fw-semibold me-2" (click)="transfer(employee)">
                     Transfer
                   </button>
-                  <button class="btn btn-outline-primary btn-sm fw-semibold me-2" (click)="edit(employee.id)">
+                  <button *ngIf="account()?.role === 'Admin'" class="btn btn-outline-primary btn-sm fw-semibold me-2" (click)="edit(employee.id)">
                     Edit
                   </button>
                   <button *ngIf="account()?.role === 'Admin'" class="btn btn-outline-danger btn-sm fw-semibold" (click)="delete(employee.id)">

@@ -13,7 +13,7 @@ export class RequestService {
 
     constructor(private http: HttpClient) { }
 
-    // 🔍 Get all requests
+    // 🔍 Get all requests (for Admin)
     getAll(): Observable<Request[]> {
         return this.http.get<Request[]>(baseUrl);
     }
@@ -21,6 +21,11 @@ export class RequestService {
     // 🔍 Get request by ID
     getById(id: number | string): Observable<Request> {
         return this.http.get<Request>(`${baseUrl}/${id}`);
+    }
+
+    // 🔍 Get requests by employee (for User)
+    getByEmployee(accountId: number): Observable<Request[]> {
+        return this.http.get<Request[]>(`${baseUrl}/employee/${accountId}`);
     }
 
     // ➕ Create a new request

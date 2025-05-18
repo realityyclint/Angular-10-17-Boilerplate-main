@@ -24,19 +24,45 @@ export class ListComponent implements OnInit {
     }
 
     loadRequests(): void {
-        this.isLoading = true; // start loading
-        this.requestService.getAll().subscribe({
-            next: (data) => {
-                this.requests = data;
-                this.isLoading = false; // done loading
-                this.errorMessage = '';
-            },
-            error: (err) => {
-                this.errorMessage = err.message;
-                this.isLoading = false; // done loading even on error
-            }
-        });
+        this.isLoading = true;
+
+        const account = this.account();
+
+        if (!account) {
+            this.errorMessage = 'User not logged in.';
+            this.isLoading = false;
+            return;
+        }
+
+        if (account.role === 'Admin') {
+            this.requestService.getAll().subscribe({
+                next: (data) => {
+                    this.requests = data;
+                    this.isLoading = false;
+                    this.errorMessage = '';
+                },
+                error: (err) => {
+                    this.errorMessage = err.message;
+                    this.isLoading = false;
+                }
+            });
+        } else {
+            this.requestService.getByEmployee(parseInt(account.id, 10))
+                .subscribe({
+                    next: (data) => {
+                        this.requests = data;
+                        this.isLoading = false;
+                        this.errorMessage = '';
+                    },
+                    error: (err) => {
+                        this.errorMessage = err.message;
+                        this.isLoading = false;
+                    }
+                });
+        }
     }
+
+
 
     add(): void {
         this.router.navigate(['add'], { relativeTo: this.route }); // ✅ relative navigation
