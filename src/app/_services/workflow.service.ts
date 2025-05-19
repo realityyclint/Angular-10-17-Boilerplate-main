@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
     providedIn: 'root'
 })
 export class WorkflowService {
-    private baseUrl = 'https://node-js-mysql-boilerplate-api.onrender.com/accounts/workflows';
+    private baseUrl = 'https://node-js-mysql-boilerplate-api-jup5.onrender.com/accounts/workflows';
 
     constructor(private http: HttpClient) { }
 

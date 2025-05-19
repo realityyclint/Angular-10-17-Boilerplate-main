@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
     providedIn: 'root',
 })
 export class UserService {
-    private baseUrl = 'https://node-js-mysql-boilerplate-api.onrender.com/accounts/users'; // Adjust this if your API route differs
+    private baseUrl = 'https://node-js-mysql-boilerplate-api-jup5.onrender.com/accounts/users'; // Adjust this if your API route differs
 
     constructor(private http: HttpClient) { }
 
